@@ -33,6 +33,7 @@ public:
         Serial.print(F(" received: "));
         Serial.println(storage);
         store(storage, name);
+        delay(1050);
     }
 };
 

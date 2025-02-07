@@ -31,10 +31,10 @@ BLYNK_WRITE(V0)
 {
   if(param.asInt() == 1)
   {
-    digitalWrite(test_pin, HIGH);
+    digitalWrite(inverter_pin, HIGH);
     Serial.println("Turning on Solar Inverter");
   } else if (param.asInt() == 0 ){
-    digitalWrite(test_pin, LOW);
+    digitalWrite(inverter_pin, LOW);
     Serial.println("Turning off Solar Inverter");
   } else {
     Serial.println("V0 is buggy");

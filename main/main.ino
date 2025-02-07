@@ -18,7 +18,7 @@ const char auth[] = ""; // Blynk authentication token
 
 //GPIO pin numbers.
 const uint8_t Bluetooth_Button = 22; 
-const int test_pin = 23;
+const int inverter_pin = 23;
 uint8_t battery_percentage = 0;
 double power_consumption = 0;
 
@@ -43,16 +43,13 @@ void setup() {
   while (!Serial) {
     delay(10);
   }
-  pinMode(test_pin, OUTPUT);
+  pinMode(inverter_pin, OUTPUT);
   pinMode(Bluetooth_Button, INPUT);
-  getWiFiCredentials();
-  wifiConnect(g_ssid, g_password);
-
-  if (WiFi.status() == WL_CONNECTED){
-  Serial.println("Successfully connected to ");
-  Serial.println(g_ssid);
-  Serial.println("IP address: ");
-  Serial.println(WiFi.localIP());
+  getWiFiCredentials(); // Pull Wi-Fi Credentials from non-volatile Flash Storage
+  wifiConnect(g_ssid, g_password); // Connect to Wi-Fi network gotten from the non-volatile Flash
+  if (digitalRead(Bluetooth_Button) == HIGH){ // If configuration-mode button is 
+    Credentials_Change(); // Change Wi-Fi credentials using BLE and Preferences library
+    esp_restart(); // restart needed to save credentials in the flash storage.
   }
 
   Blynk.config(auth, "blynk.cloud", 80);
@@ -63,9 +60,9 @@ void setup() {
 
 
 void loop() {
-  if (digitalRead(Bluetooth_Button) == HIGH){
-    Credentials_Change();
-    esp_restart(); // restart needed to save in the flash storage.
+  if (digitalRead(Bluetooth_Button) == HIGH){ // If configuration-mode button is 
+    Credentials_Change(); // Change Wi-Fi credentials using BLE and Preferences library
+    esp_restart(); // restart needed to save credentials in the flash storage.
   }
   Blynk.run();
   timer.run();
