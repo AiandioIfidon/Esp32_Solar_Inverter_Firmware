@@ -2,11 +2,16 @@
 #include <BLEDevice.h>
 #include <BLEUtils.h>
 #include <BLEServer.h>
+#include <Wire.h>
+#include <LiquidCrystal_I2C.h>
+LiquidCrystal_I2C lcd(0x27,16,2);
 
 #include "config.h"
-#include "bleserver.h"
+#include "lcd_print.h"
 #include "wifi_connect.h"
+#include "bleserver.h"
 #include "blynk.h"
+
 
 /*
 Imported variables through config header file. Variables are ;
@@ -41,12 +46,22 @@ constexpr char PASSPHRASE_UUID[] = "";
 void setup() {
   Serial.begin(115200);
   while (!Serial) {
-    delay(10);
   }
+
+  lcd.init();
+  lcd.backlight();
+  lcd_print_offline("An_D Ifidon", "Monitoring System");
+  delay(1000);
+  lcd.clear();
+
   pinMode(inverter_pin, OUTPUT);
+  pinMode(current_sensor, INPUT);
   pinMode(Bluetooth_Button, INPUT);
+  setuphandling();
   getWiFiCredentials(); // Pull Wi-Fi Credentials from non-volatile Flash Storage
+
   wifiConnect(g_ssid, g_password); // Connect to Wi-Fi network gotten from the non-volatile Flash
+
   if (digitalRead(Bluetooth_Button) == HIGH){ // If configuration-mode button is 
     Credentials_Change(); // Change Wi-Fi credentials using BLE and Preferences library
     esp_restart(); // restart needed to save credentials in the flash storage.
@@ -54,13 +69,12 @@ void setup() {
 
   Blynk.config(auth, "blynk.cloud", 80);
   Blynk.connect();
-  timer.setInterval(3000L, battery_and_statusUpdater);
-  timer.setInterval(1000L, power_consumption_updater);
+  timer.setInterval(3000L, Status_Updater);
 }
 
 
 void loop() {
-  if (digitalRead(Bluetooth_Button) == HIGH){ // If configuration-mode button is 
+  if (digitalRead(Bluetooth_Button) == HIGH || updatingCredentials == true){ // If configuration-mode button is 
     Credentials_Change(); // Change Wi-Fi credentials using BLE and Preferences library
     esp_restart(); // restart needed to save credentials in the flash storage.
   }

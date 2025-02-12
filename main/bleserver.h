@@ -6,8 +6,10 @@ void store(String inputValue, const char* name){
   preferences.begin(PREF_NAMESPACE, false);
   preferences.putString(name, inputValue);
   preferences.end();
-  Serial.print("Stored the ");
+  Serial.print("Updated ");
   Serial.println(name);
+  lcdclear();
+  lcd_print_offline("Updated ", name);
 }
 
 class WiFiCredentialCallback: public BLECharacteristicCallbacks {
@@ -33,7 +35,6 @@ public:
         Serial.print(F(" received: "));
         Serial.println(storage);
         store(storage, name);
-        delay(1050);
     }
 };
 
@@ -78,9 +79,10 @@ void setupBLEServer() {
     BLEDevice::startAdvertising();
 
     Serial.println(F("BLE server started successfully"));
+    lcdclear();
+    lcd_print_offline("BLE server start", "-ed successfully");
     return;
 }
-
  void getWiFiCredentials() {
     if (!preferences.begin(PREF_NAMESPACE, true)) {
         Serial.println(F("Failed to open preferences"));
@@ -104,9 +106,6 @@ void setupBLEServer() {
     preferences.end();
     return;
 }
-
-
-
 void Credentials_Change() {
   setupBLEServer();
   updatingCredentials = true;
@@ -117,32 +116,37 @@ void Credentials_Change() {
 
   while(g_ssid == "" && g_password == ""){
     getWiFiCredentials();
-    Serial.println("\nStill waiting for changes");
-    delay(3000);
+    Serial.println("\nWaiting for changes");
+    lcdclear();
+    lcd_print_offline("Waiting for ", "credentials");
+    delay(1000);
   }
   store(g_ssid, "ssid");
   store(g_password, "password");
   getWiFiCredentials();
   updatingCredentials = false;
   Serial.println("Successfully changed wifi credentials");
+  lcdclear();
+  lcd_print_offline("Successfully cha", "nged credentials");
+  delay(2000);
 }
-
-
 void setuphandling(){
   // Open preferences in read-only mode
-    preferences.begin(PREF_NAMESPACE, true);
-    bool hasCredentials = preferences.isKey("ssid");
-    preferences.end();
+  preferences.begin(PREF_NAMESPACE, true);
+  bool hasCredentials = preferences.isKey("ssid");
+  preferences.end();
 
-    if (!hasCredentials) {
-      Serial.println(F("No stored credentials, starting BLE..."));
+  if (!hasCredentials) {
+    Serial.println(F("No stored credentials, starting BLE..."));
+    lcdclear();
+    lcd_print_offline("No stored creden", "ials, BLE start");
+    Credentials_Change();
+  } else {
+    getWiFiCredentials();
+    if (g_ssid[0] == '\0' && g_password[0] == '\0') {
       Credentials_Change();
-    } else {
-        getWiFiCredentials();
-        if (g_ssid[0] == '\0' && g_password[0] == '\0'){
-          Credentials_Change();
-        }
-      }
+    }
+  }
 }
 
 
