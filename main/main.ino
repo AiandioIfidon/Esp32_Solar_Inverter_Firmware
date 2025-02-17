@@ -50,7 +50,7 @@ void setup() {
 
   lcd.init();
   lcd.backlight();
-  lcd_print_offline("An_D Ifidon", "Monitoring System");
+  lcd_print_offline("      An_D      ", "     System     ");
   delay(1000);
   lcd.clear();
 

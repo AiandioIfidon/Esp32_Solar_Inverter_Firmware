@@ -5,6 +5,8 @@
 
 void wifiConnect(String ssid, String password) {
   if (digitalRead(Bluetooth_Button) == HIGH) {
+    Serial.println("Updating credentials");
+    delay(500);
     return;
   };
   WiFi.begin(ssid, password);
@@ -13,6 +15,8 @@ void wifiConnect(String ssid, String password) {
 
     if (digitalRead(Bluetooth_Button) == HIGH) {
       updatingCredentials = true;
+      Serial.println("Updating credentials");
+      delay(500);
       return;
     }
     delay(1000);
