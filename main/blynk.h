@@ -1,13 +1,17 @@
 #ifdef BLYNK_TEMPLATE_ID
 
 #include <BlynkSimpleEsp32.h>
+#include <stdio.h>
 
 BlynkTimer timer;
 
 void check_current(){
   analogValue = analogRead(current_sensor) - 512;
+  Serial.println(analogValue);
   current_value = analogValue*Amp_per_analog;
-  current_value += 37.92;
+  current_value /= 10;
+  current_value -= 1.305;
+  current_value = abs(current_value);
   Serial.print("Current_value : ");
   Serial.println(current_value);
 }
@@ -23,7 +27,7 @@ void Status_Updater(){
 
   check_current();
   lcdclear();
-  lcd_print_online(g_ssid, battery_percentage, current_value);
+  lcd_print_online(g_ssid, battery_percentage, current_value < 0 ? 0 : current_value);
   Blynk.virtualWrite(V3, current_value);
   Blynk.virtualWrite(V1, battery_percentage);
   Blynk.virtualWrite(V2, "Online");

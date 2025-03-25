@@ -12,7 +12,7 @@ void lcd_print_online(String connected_ssid, int battery, double power){
   lcd.setCursor(8, 1);
   lcd.print(power);
   lcd.setCursor(13, 1);
-  lcd.print("Wts");
+  lcd.print("Amp");
 }
 
 void lcd_print_offline(String first_line, String second_line){
